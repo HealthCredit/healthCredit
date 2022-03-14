@@ -1,0 +1,23 @@
+{
+  "name": "healthcredit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/himanshu-Bhatt/healthCredit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/himanshu-Bhatt/healthCredit/issues"
+  },
+  "homepage": "https://github.com/himanshu-Bhatt/healthCredit#readme",
+  "devDependencies": {
+    "hardhat": "^2.9.1"
+  }
+}
