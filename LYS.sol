@@ -4,34 +4,33 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract LYS is ERC1155 {
-   address owner;
-    uint _tokenIds=0;
+    string public name;
+  string public symbol;
+  uint public tokenIds=0;
 
-    mapping(uint=>string) private tokenURI;
-    mapping(uint=>address) private ownerOfToken;
+  mapping(uint => string) public tokenURI;
+  mapping(uint=>address) public ownerOfId;
 
-    constructor() ERC1155("") {
-        owner=msg.sender;
-    }
+  constructor() ERC1155("") {
+    name = "HashItems";
+    symbol = "HASHITEMS";
+  }
 
-    modifier onlyOwner(){
-        require(msg.sender==owner,"You are not the owner");
-        _;
-    }
+  function mint( uint _amount) external {
+      tokenIds++;
+      ownerOfId[tokenIds]=msg.sender;
+     _mint(msg.sender, tokenIds, _amount, "");
+  }
 
-    function mintLYS(uint amount) external returns(uint){
-        _tokenIds++;
-        _mint(msg.sender,_tokenIds,amount,"");
-        ownerOfToken[_tokenIds]=msg.sender;
-        return _tokenIds;
-    }
-    function setURI(uint id,string memory newuri) public  {
-        require(msg.sender==ownerOfToken[_tokenIds],"You do not contain token of this Id");
-        require(bytes(tokenURI[id]).length==0,"URI already set");
-        tokenURI[id]=newuri;
-        emit URI(newuri,id);
-    }
-    function uri(uint _id) public view override returns(string memory){
-        return tokenURI[_id];
-    }
+
+  function setURI(uint _id, string memory _uri) external  {
+      require(msg.sender==ownerOfId[_id],"You are not the owner of this token id");
+    tokenURI[_id] = _uri;
+    emit URI(_uri, _id);
+  }
+
+  function uri(uint _id) public override view returns (string memory) {
+    return tokenURI[_id];
+  }
+
 }
