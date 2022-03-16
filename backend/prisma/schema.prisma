@@ -11,7 +11,9 @@ model User {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  walletAddress String   @unique @default("0x0000000000000000000000000000000000000000")
+  walletAddress String   @unique
+  beneficiaries String   @unique
+  impactReport  String   @unique
   hash          String
   hashedRt      String?
 
