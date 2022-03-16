@@ -11,7 +11,8 @@ import {
 import { Nonce, Tokens } from './types/index'
 import { WalletDto, SignatureDto, AuthDto } from './dto/index'
 import { AuthenticationService } from './authentication.service';
-import { RtGuard } from '../common/guards/rt.guard';
+import { AtGuard, RtGuard } from '../common/guards';
+import { GetCurrentUserId } from '../common/decorator';
 
 @Controller('api')
 export class AuthenticationController {
@@ -29,9 +30,16 @@ export class AuthenticationController {
       return this.authService.verifySignature(signatureDto)
   }
 
-  @Post('register')
+  @Post('authenticate')
   @HttpCode(HttpStatus.OK)
   authenticate(@Body() dto: AuthDto): Promise<object> {
     return this.authService.authenticate(dto)
+  }
+
+  @UseGuards(AtGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@GetCurrentUserId() userId: number) {
+    return this.authService.logout(userId);
   }
 }
