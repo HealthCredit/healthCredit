@@ -2,35 +2,85 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+interface Impact{
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
 
 contract LYS is ERC1155 {
-    string public name;
-  string public symbol;
-  uint public tokenIds=0;
+    address owner;
+    uint _tokenIds=1;
+    uint proposalId=1;
+    Impact impact;
 
-  mapping(uint => string) public tokenURI;
-  mapping(uint=>address) public ownerOfId;
+    mapping(uint=>string) public tokenURI;
+    mapping(uint=>address) public ownerOfToken;
+    mapping(uint=>string) public proposalIdtoUri;
+    mapping(uint=>address) public proposorAddress;
+    mapping(uint=>bool) public approove;
+    event proposalSubmitEvent(uint indexed id,address indexed propsal,string indexed proposalUri);
 
-  constructor() ERC1155("") {
-    name = "HashItems";
-    symbol = "HASHITEMS";
-  }
+    constructor(address _impactContractAddress) ERC1155("") {
+        impact=Impact(_impactContractAddress);
+        owner=msg.sender;
+    }
 
-  function mint( uint _amount) external {
-      tokenIds++;
-      ownerOfId[tokenIds]=msg.sender;
-     _mint(msg.sender, tokenIds, _amount, "");
-  }
-
-
-  function setURI(uint _id, string memory _uri) external  {
-      require(msg.sender==ownerOfId[_id],"You are not the owner of this token id");
-    tokenURI[_id] = _uri;
-    emit URI(_uri, _id);
-  }
-
-  function uri(uint _id) public override view returns (string memory) {
-    return tokenURI[_id];
-  }
-
+    modifier onlyOwner(){
+        require(msg.sender==owner,"You are not the owner");
+        _;
+    }
+    function getPropsalLink(uint _id) external view returns(string memory){
+        return proposalIdtoUri[_id];
+    }
+    function getProposalAddress(uint _id) external view returns(address){
+        return proposorAddress[_id];
+    }
+    function propose(string memory detailUri) external returns(uint){
+        uint currentId=proposalId;
+        proposalIdtoUri[currentId]=detailUri;
+        proposorAddress[currentId]=msg.sender;
+        emit proposalSubmitEvent(currentId, msg.sender, detailUri);
+        proposalId++;
+        return currentId;
+    }
+    function approoveProposal(uint _proposalId) external{
+        require(approove[_proposalId]==false,"proposal already approoved");
+        bool hasImpact=isImpactHolder(msg.sender);
+        require(hasImpact==true,"you do not have impact token");
+        approove[_proposalId]=true;
+    }
+    function isImpactHolder(address caller) internal view returns (bool){
+        uint balance=impact.balanceOf(caller);
+        return balance>0;
+    }
+    function mint(uint _proposalId,uint amount) external returns(uint){
+        require(msg.sender==proposorAddress[_proposalId],"You are not the owner of this proposalId");
+        require(approove[proposalId]==true,"This proposal is not approoved by the impact token holders");
+         uint currentId=_tokenIds;
+        _mint(msg.sender,currentId,amount,"");
+        ownerOfToken[currentId]=msg.sender;
+        _tokenIds++;
+        return currentId;
+    }
+    function setURI(uint id,string memory newuri) public  {
+        require(msg.sender==proposorAddress[proposalId],"You are not the owner of this proposalId");
+        require(approove[proposalId]==true,"This proposal is not approoved by the impact token holders");
+        require(msg.sender==ownerOfToken[_tokenIds],"You do not contain token of this Id");
+        require(bytes(tokenURI[id]).length==0,"URI already set");
+        tokenURI[id]=newuri;
+        emit URI(newuri,id);
+    }
+    function uri(uint _id) public view override returns(string memory){
+        return tokenURI[_id];
+    }
 }
