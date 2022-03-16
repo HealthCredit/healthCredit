@@ -1,13 +1,11 @@
 import { ethers } from 'ethers'
 import { SIGNING_MESSAGE } from './constants/constant';
 import { WalletDto, SignatureDto } from './dto/index'
-import { Nonce } from './types';
-import { ForbiddenException, Logger, Injectable, NotFoundException } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
-import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -17,6 +15,20 @@ export class AuthenticationService {
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
+
+
+  /**
+   * walletAddress: user wallet address passed in from frontend
+   * 
+   * @param AuthDto payload containing user wallet address
+   * 
+   * @implements if user exists: fetch access and refresh tokens
+   *             else creates new user
+   * 
+   * @returns tokens
+   *          byte32 hash from solidityKeccak256 = byte32Hash
+   *          bcrypt hash of byte32Hash = hash
+   **/
 
   async authenticate(dto: AuthDto): Promise<Object> {
     const existingUser = await this.prisma.user.findUnique({
@@ -50,7 +62,14 @@ export class AuthenticationService {
     }
   }
 
-
+  /**
+   * userId: User unique id
+   * rt: refresh tokens
+   * 
+   * @param {userId, rt}
+   * 
+   * updates refresh tokens tied to a user
+   **/
   async updateRtHash(userId: number, rt: string) {
     const hashRt = await this.hashData(rt);
     await this.prisma.user.update({
@@ -59,6 +78,26 @@ export class AuthenticationService {
       },
       data: {
         hashedRt: hashRt,
+      },
+    });
+  }
+
+  /**
+   * @param userId
+   * 
+   * Clears refresh tokens tied to user 
+   **/ 
+
+  async logout(userId: number) {
+    await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        hashedRt: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRt: null,
       },
     });
   }
@@ -73,28 +112,28 @@ export class AuthenticationService {
    * @returns Byte32 Hash after packing the wallet and nonce using solidityKeccak256
    * */ 
 
-     async generateNonce(walletData: WalletDto): Promise<any> {
-      const nonce = ethers.utils.hexlify(new Date().getTime());
-      const wallet = walletData.walletAddress
-      const hash = ethers.utils.solidityKeccak256(["string", "string"], [nonce, wallet]);
-  
-      return {
-        message: SIGNING_MESSAGE.replace('{NONCE_VALUE}', hash),
-        value: hash,
-      };
-    }
-  
-    /**
-     * Hash: Byte32 message created using solidityKeccak256
-     * address: User wallet address
-     * Signature: Signed message by user (Byte32)
-     * 
-     * @param signatureDto The payload containing Address, Hash and Signature
-     * @returns true if address is successfully recovered from signature @else false
-     * 
-     */ 
+  async generateNonce(walletData: WalletDto): Promise<any> {
+    const nonce = ethers.utils.hexlify(new Date().getTime());
+    const wallet = walletData.walletAddress
+    const hash = ethers.utils.solidityKeccak256(["string", "string"], [nonce, wallet]);
 
-     async verifySignature(signatureDto: SignatureDto): Promise<boolean> {
+    return {
+      message: SIGNING_MESSAGE.replace('{NONCE_VALUE}', hash),
+      value: hash,
+    };
+  }
+  
+  /**
+   * Hash: Byte32 message created using solidityKeccak256
+   * address: User wallet address
+   * Signature: Signed message by user (Byte32)
+   * 
+   * @param signatureDto The payload containing Address, Hash and Signature
+   * @returns true if address is successfully recovered from signature @else false
+   * 
+   */ 
+
+    async verifySignature(signatureDto: SignatureDto): Promise<boolean> {
       Logger.verbose(`"[verifySignature]: address "${signatureDto.walletAddress}", signature "${signatureDto.signature}"`)
 
       const recoveredAddress = ethers.utils.verifyMessage(signatureDto.nonce.message, signatureDto.signature)
@@ -102,14 +141,28 @@ export class AuthenticationService {
       Logger.verbose(`[verifySignature]: recoveredAddress "${recoveredAddress}"`)
 
       return recoveredAddress === signatureDto.walletAddress
-  }
+    }
 
 
-  // ?: hash function to salt the byte32 hash gotten from the signed message (make sure this comment is correct)
+  /**
+   * data: any form
+   *  
+   * @param data The payload for any kind of data
+   * 
+   * @returns hash
+   **/ 
   hashData(data: any) {
     return bcrypt.hash(data, 10)
   }
 
+  /**
+   * userId: uniqueId of the user in the database
+   * info: reference data of the userId on the database
+   * 
+   * @param {userId, info} 
+   * 
+   * @returns access and refresh tokens
+   **/ 
   async getTokens(userId: number, info: string) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
