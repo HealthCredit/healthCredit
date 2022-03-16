@@ -29,6 +29,7 @@ contract LYS is ERC1155 {
     mapping(uint=>address) public proposorAddress;
     mapping(uint=>bool) public approove;
     event proposalSubmitEvent(uint indexed id,address indexed propsal,string indexed proposalUri);
+    event approovedEvent(uint indexed id,address indexed propsal,string indexed proposalUri);
 
     constructor(address _impactContractAddress) ERC1155("") {
         impact=Impact(_impactContractAddress);
@@ -57,7 +58,9 @@ contract LYS is ERC1155 {
         require(approove[_proposalId]==false,"proposal already approoved");
         bool hasImpact=isImpactHolder(msg.sender);
         require(hasImpact==true,"you do not have impact token");
+        string memory _detailUri=proposalIdtoUri[_proposalId];
         approove[_proposalId]=true;
+        emit approovedEvent(_proposalId,msg.sender,_detailUri);
     }
     function isImpactHolder(address caller) internal view returns (bool){
         uint balance=impact.balanceOf(caller);
