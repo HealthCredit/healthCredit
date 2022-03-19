@@ -23,6 +23,15 @@ contract LYS is ERC1155 {
     uint proposalId=1;
     Impact impact;
 
+    enum Status {pending,approoved,rejected}
+
+    struct ProposalStruct{
+        uint id;
+        string link;
+        uint LYStokenAmount;
+        Status status;
+    }
+    ProposalStruct[] proposalArray;
     mapping(uint=>string) public tokenURI;
     mapping(uint=>address) public ownerOfToken;
     mapping(uint=>string) public proposalIdtoUri;
@@ -46,21 +55,38 @@ contract LYS is ERC1155 {
     function getProposalAddress(uint _id) external view returns(address){
         return proposorAddress[_id];
     }
-    function propose(string memory detailUri) external returns(uint){
+    function getAllProposal() external view returns(ProposalStruct[] memory){
+        return proposalArray;
+    }
+    function propose(string memory detailUri,uint amount) external returns(uint){
         uint currentId=proposalId;
         proposalIdtoUri[currentId]=detailUri;
         proposorAddress[currentId]=msg.sender;
+       proposalArray.push(ProposalStruct({
+           id:proposalId,
+           link:detailUri,
+           LYStokenAmount:amount,
+           status:Status.pending
+       }));
         emit proposalSubmitEvent(currentId, msg.sender, detailUri);
         proposalId++;
         return currentId;
     }
-    function approoveProposal(uint _proposalId) external{
+    function approoveProposal(uint _proposalId,bool success) external{
         require(approove[_proposalId]==false,"proposal already approoved");
         bool hasImpact=isImpactHolder(msg.sender);
         require(hasImpact==true,"you do not have impact token");
-        string memory _detailUri=proposalIdtoUri[_proposalId];
-        approove[_proposalId]=true;
-        emit approovedEvent(_proposalId,msg.sender,_detailUri);
+         ProposalStruct storage temp=proposalArray[_proposalId-1];
+         require(temp.status==Status.pending,"Proposal is already checked and considered");
+        if(success==true){
+approove[_proposalId]=true;  
+        temp.status=Status.approoved;
+        emit approovedEvent(_proposalId,msg.sender,temp.link);
+        }
+        else{
+            approove[_proposalId]=false;
+            temp.status=Status.rejected;
+        }
     }
     function isImpactHolder(address caller) internal view returns (bool){
         uint balance=impact.balanceOf(caller);
@@ -69,6 +95,8 @@ contract LYS is ERC1155 {
     function mint(uint _proposalId,uint amount) external returns(uint){
         require(msg.sender==proposorAddress[_proposalId],"You are not the owner of this proposalId");
         require(approove[proposalId]==true,"This proposal is not approoved by the impact token holders");
+        ProposalStruct memory temp=proposalArray[_proposalId-1];
+        require(amount<=temp.LYStokenAmount,"You cannot mint these many LYS tokes");
          uint currentId=_tokenIds;
         _mint(msg.sender,currentId,amount,"");
         ownerOfToken[currentId]=msg.sender;
