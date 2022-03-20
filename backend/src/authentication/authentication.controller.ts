@@ -5,13 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { Nonce, Tokens } from './types/index';
 import { WalletDto, SignatureDto, AuthDto } from './dto/index';
 import { AuthenticationService } from './authentication.service';
-import { AtGuard, RtGuard } from '../common/guards';
+import { AtGuard } from '../common/guards';
 import { GetCurrentUserId } from '../common/decorator';
 
 @Controller('api')
@@ -30,7 +28,7 @@ export class AuthenticationController {
 
   @Post('authenticate')
   @HttpCode(HttpStatus.OK)
-  authenticate(@Body() dto: AuthDto): Promise<object> {
+  authenticate(@Body() dto: AuthDto): Promise<any> {
     return this.authService.authenticate(dto);
   }
 
