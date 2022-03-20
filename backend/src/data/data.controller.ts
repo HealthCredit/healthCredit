@@ -8,7 +8,7 @@ export class DataController {
   constructor(private readonly dataService: DataService) {}
 
   @Post('upload')
-  storeFiles(@Body() dto: AuthDto): Promise<string> {
+  storeFiles(@Body() dto: AuthDto): Promise<any> {
     return this.dataService.storeFiles(dto);
   }
 
@@ -18,7 +18,7 @@ export class DataController {
   }
 
   @Get('retrieve')
-  async retrieve(@Body() dto: CidDto): Promise<any> {
-    return this.dataService.retrieve(dto);
+  async retrieve(@Body() dto: AuthDto): Promise<any> {
+    return this.dataService.retrieveMetadata(dto);
   }
 }
