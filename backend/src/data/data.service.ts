@@ -127,7 +127,7 @@ export class DataService {
    *
    * @summary saved CID to the database for the respective user.
    * */
-   async saveCid(userId: number, cid: string) {
+  async saveCid(userId: number, cid: string) {
     const _cid = cid;
 
     await this.prisma.user.update({
