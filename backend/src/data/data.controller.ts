@@ -1,22 +1,24 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { AuthDto } from '../authentication/dto';
 import { DataService } from './data.service';
+import { CidDto } from './dto/cid.dto';
 
 @Controller('data')
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
   @Post('upload')
-  storeFiles() {
-    return this.dataService.storeFiles();
+  storeFiles(@Body() dto: AuthDto): Promise<string> {
+    return this.dataService.storeFiles(dto);
   }
 
   @Get('check')
-  async checkStatus() {
-    return this.dataService.checkStatus();
+  async checkStatus(@Body() dto: CidDto): Promise<any> {
+    return this.dataService.checkStatus(dto);
   }
 
   @Get('retrieve')
-  async retrieve() {
-    return this.dataService.retrieve();
+  async retrieve(@Body() dto: CidDto): Promise<any> {
+    return this.dataService.retrieve(dto);
   }
 }
