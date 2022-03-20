@@ -9,43 +9,33 @@ import { writeFileSync, readdir, readFileSync } from 'fs';
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
 
-  async saveCid(userId: number, cid: string) {
-    const _cid = cid;
-
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        cid: _cid,
-      },
-    });
-  }
-
   /**
-   * @param
-   * @returns
+   * @param walletAddress: wallet address of the user.
+   * @returns image_uri for to be stored in the metadata
+   *
    * */
-  async modifyMetadata(wallet: string) {
+  async modifyMetadata(walletAddress: string) {
     // check that user exists
     const existingUser = await this.prisma.user.findUnique({
       where: {
-        walletAddress: wallet,
+        walletAddress,
       },
     });
 
     // fetch files uploaded to a folder
-    const files: any = await getFilesFromPath(`folder/${wallet}/LYS.png`);
+    const files: any = await getFilesFromPath(
+      `folder/${walletAddress}/LYS.png`,
+    );
     const cid = await this.uploadToFilecoin(files, existingUser);
 
     const image = `https://${cid}.ipfs.dweb.link/LYS.png`;
 
-    readdir(`folder/${wallet}`, (err, files) => {
+    readdir(`folder/${walletAddress}`, (err, files) => {
       if (err) console.log(err);
       else {
         files.forEach((file) => {
           if (file === 'metadata.json') {
-            const content = readFileSync(`folder/${wallet}/${file}`, {
+            const content = readFileSync(`folder/${walletAddress}/${file}`, {
               encoding: 'utf8',
               flag: 'r',
             });
@@ -57,7 +47,7 @@ export class DataService {
             // console.log(contentNew);
 
             writeFileSync(
-              `folder/${wallet}/${file}`,
+              `folder/${walletAddress}/${file}`,
               JSON.stringify(contentNew),
               'utf-8',
             );
@@ -71,7 +61,7 @@ export class DataService {
 
   /**
    *  @param dto: user wallet address
-   *  @returns projectUri
+   *  @returns projectUri for project files uploaded to filecoin
    * */
   async storeFiles(dto: AuthDto): Promise<any> {
     // check that user exists
@@ -131,6 +121,25 @@ export class DataService {
     return uri;
   }
 
+  /**
+   * @param userId: the user unqiue Identifier on the database
+   * @param cid: the Content Identifier for projects saved on filecoin
+   *
+   * @summary saved CID to the database for the respective user.
+   * */
+   async saveCid(userId: number, cid: string) {
+    const _cid = cid;
+
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        cid: _cid,
+      },
+    });
+  }
+
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/
 
   /**
@@ -164,7 +173,8 @@ export class DataService {
   }
 
   /**
-   * @param file
+   * @param file instance
+   * @returns cid
    * */
   async uploadToFilecoin(files: any, existingUser: any) {
     const web3Storage = await this.makeStorageClient();
