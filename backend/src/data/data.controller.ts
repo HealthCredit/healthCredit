@@ -3,7 +3,7 @@ import { AuthDto } from '../authentication/dto';
 import { DataService } from './data.service';
 import { CidDto } from './dto/cid.dto';
 
-@Controller('data')
+@Controller('api/data')
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
@@ -17,7 +17,7 @@ export class DataController {
     return this.dataService.checkStatus(dto);
   }
 
-  @Get('retrieve')
+  @Get('retrieveMetadata')
   async retrieve(@Body() dto: AuthDto): Promise<any> {
     return this.dataService.retrieveMetadata(dto);
   }
