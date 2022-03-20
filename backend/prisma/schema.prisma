@@ -12,8 +12,7 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   walletAddress String   @unique
-  beneficiaries String?  @unique
-  impactReport  String?  @unique
+  cid           String?  @unique
   hash          String
   hashedRt      String?
 
