@@ -48,7 +48,7 @@ export class DataService {
 
             writeFileSync(
               `folder/${walletAddress}/${file}`,
-              JSON.stringify(contentNew),
+              JSON.parse(JSON.stringify(contentNew)),
               'utf-8',
             );
           }
@@ -122,6 +122,27 @@ export class DataService {
   }
 
   /**
+   *
+   * @returns file links for all project devlopers with their wallet addresses as a point of reference
+   * */
+  async fetchProjects(): Promise<any> {
+    const load = await this.fetchAllCIDsAndWallets();
+    let d;
+    const data = [];
+    // let data_array = [];
+    for (const dt in load) {
+      d = load[dt].map((item) => {
+        return item;
+      });
+    }
+    for (const i in d) {
+      data.push(await this.retrieveFiles(d[i].cid, d[i].walletAddress));
+    }
+
+    return data;
+  }
+
+  /**
    * @param userId: the user unqiue Identifier on the database
    * @param cid: the Content Identifier for projects saved on filecoin
    *
@@ -191,5 +212,56 @@ export class DataService {
     console.log(`stored ${files.length} files. cid: ${cid}`);
 
     return cid;
+  }
+
+  /**
+   *
+   * @returns all user records
+   * */
+  async fetchAllCIDsAndWallets() {
+    const users = await this.prisma.user.findMany();
+
+    const data = {};
+    const key = 'data';
+    data[key] = [];
+
+    for (const user in users) {
+      const input = {
+        walletAddress: users[user].walletAddress,
+        cid: users[user].cid,
+      };
+      // console.log(user);
+      data[key].push(input);
+    }
+
+    return JSON.parse(JSON.stringify(data));
+  }
+
+  async retrieveFiles(cid: string, walletAddress: string) {
+    const client = await this.makeStorageClient();
+    const res = await client.get(cid);
+    console.log(`Got a response! [${res.status}] ${res.statusText}`);
+    if (!res.ok) {
+      throw new Error(
+        `failed to get ${cid} - [${res.status}] ${res.statusText}`,
+      );
+    }
+
+    const data = new Object();
+    const key = walletAddress;
+    data[key] = [];
+
+    // unpack File objects from the response
+    const files = await res.files();
+    for (const file of files) {
+      data[key].push(
+        JSON.parse(
+          JSON.stringify(`https://${cid}.ipfs.dweb.link/${file.name}`),
+        ),
+      );
+    }
+
+    // return res.files();
+    return data;
   }
 }
