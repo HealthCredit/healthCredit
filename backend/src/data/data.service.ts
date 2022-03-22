@@ -136,7 +136,9 @@ export class DataService {
       });
     }
     for (const i in d) {
-      data.push(await this.retrieveFiles(d[i].cid, d[i].walletAddress));
+      data.push(
+        await this.retrieveFiles(d[i].cid, d[i].walletAddress, d[i].status),
+      );
     }
 
     return data;
@@ -219,7 +221,13 @@ export class DataService {
    * @returns all user records
    * */
   async fetchAllCIDsAndWallets() {
-    const users = await this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany({
+      where: {
+        cid: {
+          not: null,
+        },
+      },
+    });
 
     const data = {};
     const key = 'data';
@@ -229,15 +237,16 @@ export class DataService {
       const input = {
         walletAddress: users[user].walletAddress,
         cid: users[user].cid,
+        status: users[user].status,
       };
-      // console.log(user);
+      console.log(data);
       data[key].push(input);
     }
 
     return JSON.parse(JSON.stringify(data));
   }
 
-  async retrieveFiles(cid: string, walletAddress: string) {
+  async retrieveFiles(cid: string, walletAddress: string, status: boolean) {
     const client = await this.makeStorageClient();
     const res = await client.get(cid);
     console.log(`Got a response! [${res.status}] ${res.statusText}`);
@@ -260,7 +269,9 @@ export class DataService {
         ),
       );
     }
+    data[key].push(status);
 
+    console.log(data);
     // return res.files();
     return data;
   }

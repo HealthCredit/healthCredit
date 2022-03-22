@@ -8,7 +8,7 @@ import { CidDto } from './dto/cid.dto';
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
-  @Get('check')
+  @Post('check')
   async checkStatus(@Body() dto: CidDto): Promise<any> {
     return this.dataService.checkStatus(dto);
   }
@@ -20,7 +20,7 @@ export class DataController {
   }
 
   @UseGuards(AtGuard)
-  @Get('retrieveMetadata')
+  @Post('retrieveMetadata')
   async retrieve(@Body() dto: AuthDto): Promise<any> {
     return this.dataService.retrieveMetadata(dto);
   }
