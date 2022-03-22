@@ -8,12 +8,6 @@ function MyApp({ Component, pageProps }) {
   const [accessToken, setAccessToken] = useState("");
   const [userHasImpact, setUerHasImpact] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [userRegistration, setUserRegistration] = useState({
-    orgName: "",
-    countryName: "",
-    description: "",
-    LYSamount: 0,
-  });
 
   return (
     <AppContext.Provider
@@ -24,14 +18,12 @@ function MyApp({ Component, pageProps }) {
           accessToken,
           userHasImpact,
           projects,
-          userRegistration,
         },
         setIsConnected,
         setCurrentAccount,
         setAccessToken,
         setUerHasImpact,
         setProjects,
-        setUserRegistration,
       }}
     >
       <Component {...pageProps} />

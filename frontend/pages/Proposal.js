@@ -2,6 +2,7 @@ import styles from "../styles/Proposal.module.css";
 import Nav from "./components/Nav";
 import { useState } from "react";
 import abi from "../pages/abi/LYSabi.json";
+import { Web3Storage } from "web3.storage";
 
 function Proposal() {
   const [userRegistration, setUserRegistration] = useState({
@@ -47,14 +48,56 @@ function Proposal() {
     );
     return contract;
   };
+
+  function getAccessToken() {
+    return process.env.WEB3STORAGE_TOKEN;
+  }
+
+  function makeStorageClient() {
+    return new Web3Storage({ token: getAccessToken() });
+  }
+
+  function getFiles() {
+    const fileInput = document.querySelectorAll('input[type="file"]');
+    const tempFiles = [];
+    const files = [];
+    for (let i = 0; i < fileInput.length; i++) {
+      tempFiles.push(fileInput[i].files);
+    }
+
+    for (let i = 0; i < tempFiles.length; i++) {
+      files.push(tempFiles[i][0]);
+    }
+    files.push(makeFileObjects());
+
+    return files;
+  }
+
+  function makeFileObjects() {
+    const obj = userRegistration;
+    // * This is actually good, the json file would have the details arranged properly
+    const blob = new Blob([JSON.stringify(obj)], { type: "application/json" });
+
+    const file = new File([blob], "Project_Credentials.json");
+    return file;
+  }
+
+  async function storeFiles(files) {
+    const client = makeStorageClient();
+    const cid = await client.put(files);
+    console.log("stored files with cid: ", cid);
+    return cid;
+  }
+
   const submitForm = (e) => {
     e.preventDefault();
-
 
     if (!formIsValid) {
       return;
     }
     //Here you write your upload logic or whatever you want
+    // storeFiles(getFiles());
+    console.log(process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN);
   };
   return (
     <>
