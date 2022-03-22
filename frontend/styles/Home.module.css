@@ -1,0 +1,51 @@
+.container {
+  margin: 0 auto;
+  width: 70%;
+  padding: 0 10px;
+  /* background-color: rgb(224, 224, 168); */
+  /* border: 1px solid green; */
+}
+.body {
+  margin: 0 auto;
+}
+.heading {
+  text-align: center;
+  /* border: 1px solid black; */
+}
+.heading h1 {
+  font-size: 2.7rem;
+  margin-top: 1rem;
+}
+.heading h1 span {
+  color: red;
+}
+.heading h4 {
+  margin: 0;
+  color: red;
+  /* text-decoration: underline; */
+  border-bottom: 1px solid black;
+  padding-bottom: 10px;
+}
+.heading h4 span {
+  color: black;
+}
+.container Image {
+  border: 10px solid violet;
+}
+.detail {
+  margin: 1rem 1rem;
+  background-color: bisque;
+  padding: 5px 10px;
+  border-radius: 20px;
+  box-shadow: 2px 2px 50px bisque;
+}
+.detail p {
+  font-size: 0.8rem;
+}
+.image {
+  width: 100%;
+  border: 20px solid rgb(219, 26, 26);
+}
+.imageContainer {
+  border: 20px soild rgb(219, 26, 26);
+}
