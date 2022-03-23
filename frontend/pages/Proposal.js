@@ -167,7 +167,7 @@ function Proposal() {
     let currentUserAddress = accounts[0];
     // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
-    const contractAddress = "0xFcD3C90F4B8F4E07454f4E67579809b718EbeDF7";
+    const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
     const contractAbi = abi.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
@@ -177,18 +177,10 @@ function Proposal() {
       userRegistration.LYSamount
     );
 
-    // TODO: Get proposalId return value and convert it to number
+    proposalId.wait();
 
-    let getPropsalLink = await contract.getPropsalLink(1);
-    console.log("getLink ", getPropsalLink);
-
-    // let tx = await getPropsalLink.wait();
-    // let event = tx.events[0];
-    // let value = event.args[2];
-    // console.log(value);
-    // let tokenId = value.toNumber();
-    // const projectId = new BigNumber(proposalId).toNumber();
-    const projectId = tokenId;
+    let getProposalId = await contract.getProposalId();
+    let projectId = Number(getProposalId._hex);
 
     const result = { projectId, currentUserAddress };
     return result;
@@ -204,11 +196,9 @@ function Proposal() {
       })
     );
 
-    // await axios.post("http://localhost:3001/api/data/saveProjectId", json, {
-    //   headers: accessToken,
-    // });
-
-    return json;
+    await axios.post("http://localhost:3001/api/data/saveProjectId", json, {
+      headers: accessToken,
+    });
   }
   return (
     <>
