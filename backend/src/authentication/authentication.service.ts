@@ -48,9 +48,10 @@ export class AuthenticationService {
     } else {
       const byte32Hash = await this.generateNonce(dto);
       const hash = await this.hashData(byte32Hash.value);
+      const address = dto.walletAddress.toLowerCase();
       const user = await this.prisma.user.create({
         data: {
-          walletAddress: dto.walletAddress,
+          walletAddress: address,
           hash,
         },
       });

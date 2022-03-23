@@ -16,7 +16,7 @@ import { GetCurrentUserId } from '../common/decorator';
 export class AuthenticationController {
   constructor(private readonly authService: AuthenticationService) {}
 
-  @Get('nonce')
+  @Post('nonce')
   generateNonce(@Body() walletData: WalletDto): Promise<object> {
     return this.authService.generateNonce(walletData);
   }

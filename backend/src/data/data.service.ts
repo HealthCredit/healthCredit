@@ -3,8 +3,8 @@ import { Web3Storage, getFilesFromPath } from 'web3.storage';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
-import { CidDto } from './dto/cid.dto';
 import { writeFileSync, readdir, readFileSync } from 'fs';
+import { projectIdDto, uCidDto, CidDto } from './dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
@@ -48,7 +48,7 @@ export class DataService {
 
             writeFileSync(
               `folder/${walletAddress}/${file}`,
-              JSON.stringify(contentNew),
+              JSON.parse(JSON.stringify(contentNew)),
               'utf-8',
             );
           }
@@ -116,9 +116,32 @@ export class DataService {
 
     // variables to hold metadat uri
     const metadata_uri = `https://${cid}.ipfs.dweb.link/${walletAddress}/metadata.json`;
-    const uri = { metadata_uri };
+    const uri = metadata_uri;
 
     return uri;
+  }
+
+  /**
+   *
+   * @returns file links for all project devlopers with their wallet addresses as a point of reference
+   * */
+  async fetchProjects(): Promise<any> {
+    const load = await this.fetchAllCIDsAndWallets();
+    let d;
+    const data = [];
+    // let data_array = [];
+    for (const dt in load) {
+      d = load[dt].map((item) => {
+        return item;
+      });
+    }
+    for (const i in d) {
+      data.push(
+        await this.retrieveFiles(d[i].cid, d[i].walletAddress, d[i].status),
+      );
+    }
+
+    return data;
   }
 
   /**
@@ -136,6 +159,32 @@ export class DataService {
       },
       data: {
         cid: _cid,
+      },
+    });
+  }
+
+  // update cid and set status to false
+  async updateCid(dto: uCidDto): Promise<string> {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        cid: dto.cid,
+      },
+    });
+
+    return 'done';
+  }
+
+  // update projectId
+  async updateProjectId(dto: projectIdDto) {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        projectId: dto.projectId,
       },
     });
   }
@@ -191,5 +240,65 @@ export class DataService {
     console.log(`stored ${files.length} files. cid: ${cid}`);
 
     return cid;
+  }
+
+  /**
+   *
+   * @returns all user records
+   * */
+  async fetchAllCIDsAndWallets() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        cid: {
+          not: null,
+        },
+      },
+    });
+
+    const data = {};
+    const key = 'data';
+    data[key] = [];
+
+    for (const user in users) {
+      const input = {
+        walletAddress: users[user].walletAddress,
+        cid: users[user].cid,
+        status: users[user].status,
+      };
+      console.log(data);
+      data[key].push(input);
+    }
+
+    return JSON.parse(JSON.stringify(data));
+  }
+
+  async retrieveFiles(cid: string, walletAddress: string, status: boolean) {
+    const client = await this.makeStorageClient();
+    const res = await client.get(cid);
+    console.log(`Got a response! [${res.status}] ${res.statusText}`);
+    if (!res.ok) {
+      throw new Error(
+        `failed to get ${cid} - [${res.status}] ${res.statusText}`,
+      );
+    }
+
+    const data = new Object();
+    const key = walletAddress;
+    data[key] = [];
+
+    // unpack File objects from the response
+    const files = await res.files();
+    for (const file of files) {
+      data[key].push(
+        JSON.parse(
+          JSON.stringify(`https://${cid}.ipfs.dweb.link/${file.name}`),
+        ),
+      );
+    }
+    data[key].push(status);
+
+    console.log(data);
+    // return res.files();
+    return data;
   }
 }

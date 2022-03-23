@@ -1,24 +1,45 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthDto } from '../authentication/dto';
+import { AtGuard } from '../common/guards';
 import { DataService } from './data.service';
-import { CidDto } from './dto/cid.dto';
+import { projectIdDto, uCidDto, CidDto } from './dto';
 
 @Controller('api/data')
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
+  @Post('check')
+  async checkStatus(@Body() dto: CidDto): Promise<any> {
+    return this.dataService.checkStatus(dto);
+  }
+
+  @UseGuards(AtGuard)
   @Post('upload')
   storeFiles(@Body() dto: AuthDto): Promise<any> {
     return this.dataService.storeFiles(dto);
   }
 
-  @Get('check')
-  async checkStatus(@Body() dto: CidDto): Promise<any> {
-    return this.dataService.checkStatus(dto);
-  }
-
-  @Get('retrieveMetadata')
+  @UseGuards(AtGuard)
+  @Post('retrieveMetadata')
   async retrieve(@Body() dto: AuthDto): Promise<any> {
     return this.dataService.retrieveMetadata(dto);
+  }
+
+  @UseGuards(AtGuard)
+  @Get('fetchProjects')
+  async fetchProjects(): Promise<any> {
+    return this.dataService.fetchProjects();
+  }
+
+  @UseGuards(AtGuard)
+  @Post('updateCid')
+  async updateCid(@Body() dto: uCidDto): Promise<string> {
+    return this.dataService.updateCid(dto);
+  }
+
+  @UseGuards(AtGuard)
+  @Post('saveProjectId')
+  async saveProjectId(@Body() dto: projectIdDto) {
+    return this.dataService.updateProjectId(dto);
   }
 }
