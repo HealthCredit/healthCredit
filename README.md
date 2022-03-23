@@ -1,118 +1,87 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Health Credit
+#### "Like a carbon credit but for health."
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
+Healthcare funders like corporations, governments and foundations want to improve health in developing countries but funders are unsure of the impact they are getting. Health interventions that could save lives go underfunded due to lack of awareness, accessibility and traceable impact.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+We’re all familiar with this: when we see a company’s annual report say “We are helping maternal health in Africa” we wonder “Are they? How much? And how sure are they?”
 
-## Description
+In the era of blockchains we need not be in doubt anymore.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Solution
+Just as carbon credits represent a ton of carbon or equivalent removed from the atmosphere, we can tokenize health using DALYs (disability adjusted life years) as a unit of account.
 
-## Installation
+Each HealthCredit represents a DALY averted. Each verified company gets a unique token of impact with their logo/photo but also other relevant stats and other perks like annual investor calls or admission at social clubs for impact investors.[[1]](https://docs.google.com/document/d/1EqHl12o47FbkosROCIC6HkqtJEkZMksZZv0JayX1kCU/mobilebasic#ftnt1) Each accredited health organization can sell their tokens on a marketplace at the market price. The token uses the ticker symbol $LIFE-YEAR for “life year saved.”
 
-```bash
-$ npm install
-```
+Here are example organizations with example stats:
 
-## Running the app
+![](https://lh6.googleusercontent.com/AjROuUXO1LOzzjVvGreqt-BBD9MEOqPcnYRY2Aav1NxlL20yTU-K_IF1-QxLLOa2KmxvwtS3Vdxq3sbtlL-NtW2RpdZM0vRZLOinqfYrLAlPl1zDe-b9ChBbrSLqDIGLlwOxFkQ6)
 
-```bash
-# development
-$ npm run start
+Price of $LIFE-YEAR (the life-years saved token) depends on the subjective view of the buyer. For example, an $LIFE-YEAR from a health center in rural Kenya might be worth more to buyers than an $LIFE-YEAR from a hospital in New York. This is similar to how carbon credits work, though the carbon credit solution is less elegant. Carbon credits were intended to be fungible, but in practice buyers are willing to pay a higher price for a ton of carbon from saving the amazon rainforest than a ton of carbon from a cement plant that reduces emissions by 5%.
 
-# watch mode
-$ npm run start:dev
+NFTs and crypto currency is a good way to solve the challenge of subjective value of a DALY while simultaneously referencing a concrete number. The picture on the token also maintains the emotional relationship to the project the DALY came from. Each health organization’s token will come with an image of the project so that people can keep it in their digital wallet, on their digital trophy wall or annual report. It will also link to a video of the work and may come with perks like visiting the project (for major patrons).
 
-# production mode
-$ npm run start:prod
-```
+The number of $LIFE-YEAR for sale depends on how many DALYs an organization saves, which are subsequently verified.
 
-## Test
+## MVP for Hackathon
 
-```bash
-# unit tests
-$ npm run test
+### Roles:
 
-# e2e tests
-$ npm run test:e2e
+-   Investor: someone who buys $IMPACT ERC20 governance token such as a high net worth individual or institutional investor
+    
+-   Project Developer: a HealthCare Organization that generates the impact such as a chain of maternal health facilities in rural Uganda. They sell this impact by selling the ERC1155 token, $LIFE-YEAR
+    
+-   Credit Buyer: someone who buys the $LIFE-YEAR token
+    
+-   Beneficiary: the patients receiving the health treatment
+    
 
-# test coverage
-$ npm run test:cov
-```
+### Interaction
 
-## Support
+- Investor buys $IMPACT token with $MATIC. They can hold it in their wallet, sell it on a DEX or stake it in the protocol.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- Project Developer applies to be verified by submitting documentation ( CSV of Beneficiaries and Impact records). Investors decide to vote on the submitted documentation.
 
-## Stay in touch
+- Project Developer sets the price of the $LIFE-YEAR credits they want to sell, which is minted and sent to their wallets. The Project Developer can then list the tokens on a marketplace.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- A Credit Buyer signs in with their wallet to the marketplace and purchases credits with $MATIC. The NFT $LIFE-YEAR are transferred to their wallet where they are non-transferable. 
 
-## License
+## Architecture
+### Web3.Storage and Filecoin
+We use web3.storage to store (on filecoin) credentials uploaded by Project Developers which includes (CSV files of beneficiaries and impact records) as a folder.
 
-Nest is [MIT licensed](LICENSE).
+### PostrgeSQL
+CIDs (Content Identidiers) for each project folder upload is saved on PostrgeSQL database in order to fetch the credentials when needed (eg. For $Impact token holders to review before approving or denying a project)
 
-#
+### Polygon 
+- The healthCredit contracts exist on Polygon Mumbai testnet which gives us the ability to run our application in a real world environment.
 
-# Advanced Sample Hardhat Project
+- Links to Project Folders stored on filecoin via Web3.storage are also saved on chain through the contract as a reference point for approvals.
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+### Contracts
+HealthCredit consists of 2 contracts; an ERC20 contract and an ERC721 contract
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+#### ERC20 Token Contract
+This is the contract of Impact tokens which are a key component of the approval process.
 
-Try running some of the following tasks:
+#### ERC721 Token Contract
+This is the contract for the $LIFE-YEARS token (a.k. $LYS tokens), which are minted and project developers receive in their wallets, after their proposal/project has been approved. The $LYS tokens can be listed on a marketplace for sale.
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+### DApp
+The frontend is built with ethers.js, and Next.js.
 
-# Etherscan verification
+The backend is built with ethers.js, Nest.js and PostgreSQL
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+# Future Improvements
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+### IPFS
+We could change the way we’re pinning  files to IPFS and uploading to Filecoin via web3.storage to prevent redundant and continuous uploads by project developers
 
-```shell
-hardhat run --network ropsten scripts/deploy.js
-```
+### UI/UX
+The general User interface and User experience would definitely need major upgrades and changes to be more appealing and satisfying to users.
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+### Postgres
+The approach to fetching saved cids from the database would either be changed or a different database would be created for non-project developers
 
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
+### User Accounts
+Adding the option for users to choose between investor and project developer accounts would aid in properly separating groups of users to avoid conflicts of data, and facilitate cleaner data fetching from the database.
