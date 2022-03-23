@@ -1,10 +1,14 @@
 import styles from "../styles/Proposal.module.css";
 import Nav from "./components/Nav";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import abi from "../pages/abi/LYSabi.json";
 import { Web3Storage } from "web3.storage";
+import AppContext from "./AppContext";
+import axios from "axios";
 
 function Proposal() {
+  const value = useContext(AppContext);
+  const { currentAccount, accessToken } = value.state;
   const [userRegistration, setUserRegistration] = useState({
     orgName: "",
     countryName: "",
@@ -50,7 +54,7 @@ function Proposal() {
   };
 
   function getAccessToken() {
-    return process.env.WEB3STORAGE_TOKEN;
+    return process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN;
   }
 
   function makeStorageClient() {
@@ -89,15 +93,27 @@ function Proposal() {
     return cid;
   }
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
 
     if (!formIsValid) {
       return;
     }
     //Here you write your upload logic or whatever you want
-    // storeFiles(getFiles());
-    console.log(process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN);
+    const cid = await storeFiles(getFiles());
+    const json = JSON.parse(
+      JSON.stringify({ cid, walletAddress: currentAccount })
+    );
+    axios
+      .post("http://localhost:3001/api/data/updateCid", json, {
+        headers: accessToken,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
   };
   return (
     <>

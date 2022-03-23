@@ -5,6 +5,7 @@ import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
 import { CidDto } from './dto/cid.dto';
 import { writeFileSync, readdir, readFileSync } from 'fs';
+import { uCidDto } from './dto/uCid.dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
@@ -161,6 +162,20 @@ export class DataService {
         cid: _cid,
       },
     });
+  }
+
+  // update cid and set status to false
+  async updateCid(dto: uCidDto): Promise<string> {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        cid: dto.cid,
+      },
+    });
+
+    return 'done';
   }
 
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/

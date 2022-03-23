@@ -3,6 +3,7 @@ import { AuthDto } from '../authentication/dto';
 import { AtGuard } from '../common/guards';
 import { DataService } from './data.service';
 import { CidDto } from './dto/cid.dto';
+import { uCidDto } from './dto/uCid.dto';
 
 @Controller('api/data')
 export class DataController {
@@ -29,5 +30,11 @@ export class DataController {
   @Get('fetchProjects')
   async fetchProjects(): Promise<any> {
     return this.dataService.fetchProjects();
+  }
+
+  @UseGuards(AtGuard)
+  @Post('updateCid')
+  async updateCid(@Body() dto: uCidDto): Promise<string> {
+    return this.dataService.updateCid(dto);
   }
 }

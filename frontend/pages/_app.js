@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import AppContext from "./AppContext";
 import { useState } from "react";
+// require("dotenv").config();
 
 function MyApp({ Component, pageProps }) {
   const [isConnected, setIsConnected] = useState(false);
