@@ -38,9 +38,7 @@ function Proposal() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const accounts = await provider.listAccounts();
     let currentUserAddress = accounts[0];
-    console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
-    console.log(currentUserAddress);
     const contractAddress = "0xFcD3C90F4B8F4E07454f4E67579809b718EbeDF7";
     const contractAbi = abi.abi;
 
@@ -61,7 +59,7 @@ function Proposal() {
     return new Web3Storage({ token: getAccessToken() });
   }
 
-  function getFiles() {
+  async function getFiles() {
     const fileInput = document.querySelectorAll('input[type="file"]');
     const tempFiles = [];
     const files = [];
@@ -72,24 +70,25 @@ function Proposal() {
     for (let i = 0; i < tempFiles.length; i++) {
       files.push(tempFiles[i][0]);
     }
-    files.push(makeFileObjects());
+    files.push(await makeFileObjects());
 
     return files;
   }
 
-  function makeFileObjects() {
-    const obj = userRegistration;
+  async function makeFileObjects() {
+    const obj = await generateMetadata();
     // * This is actually good, the json file would have the details arranged properly
-    const blob = new Blob([JSON.stringify(obj)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(obj)], {
+      type: "application/json",
+    });
 
-    const file = new File([blob], "Project_Credentials.json");
+    const file = new File([blob], "metadata.json");
     return file;
   }
 
   async function storeFiles(files) {
     const client = makeStorageClient();
     const cid = await client.put(files);
-    console.log("stored files with cid: ", cid);
     return cid;
   }
 
@@ -109,13 +108,13 @@ function Proposal() {
     const imageUri = await getImageLink();
 
     const metadata = {
-      name: userRegistration.name,
+      name: userRegistration.orgName,
       description: userRegistration.description,
       image: imageUri,
       attributes: [{ country: userRegistration.countryName }],
     };
 
-    console.log(JSON.parse(JSON.stringify(metadata)));
+    return metadata;
   }
 
   const submitForm = async (e) => {
@@ -124,23 +123,23 @@ function Proposal() {
     if (!formIsValid) {
       return;
     }
-    //Here you write your upload logic or whatever you want
-    // const cid = await storeFiles(getFiles());
-    // const json = JSON.parse(
-    //   JSON.stringify({ cid, walletAddress: currentAccount })
-    // );
-    // axios
-    //   .post("http://localhost:3001/api/data/updateCid", json, {
-    //     headers: accessToken,
-    //   })
-    //   .then((res) => {
-    //     console.log(res);
-    //   })
-    //   .catch((res) => {
-    //     console.log(res);
-    //   });
+    // Here you write your upload logic or whatever you want
 
-    console.log(await generateMetadata());
+    const cid = await storeFiles(await getFiles());
+    const json = JSON.parse(
+      JSON.stringify({ cid, walletAddress: currentAccount })
+    );
+    console.log(`https://${cid}.ipfs.dweb.link`);
+    axios
+      .post("http://localhost:3001/api/data/updateCid", json, {
+        headers: accessToken,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
   };
   return (
     <>

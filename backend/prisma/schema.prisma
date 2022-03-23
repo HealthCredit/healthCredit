@@ -13,6 +13,7 @@ model User {
   updatedAt     DateTime @updatedAt
   walletAddress String   @unique
   cid           String?  @unique
+  projectId     Int      @unique
   status        Boolean  @default(false) @db.Boolean
   hash          String
   hashedRt      String?
