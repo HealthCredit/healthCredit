@@ -117,7 +117,7 @@ export class DataService {
 
     // variables to hold metadat uri
     const metadata_uri = `https://${cid}.ipfs.dweb.link/${walletAddress}/metadata.json`;
-    const uri = { metadata_uri };
+    const uri = metadata_uri;
 
     return uri;
   }

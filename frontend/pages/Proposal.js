@@ -93,6 +93,31 @@ function Proposal() {
     return cid;
   }
 
+  async function getImageLink() {
+    const fileInput = document.querySelector('input[type="file"]');
+
+    // upload image
+    const client = makeStorageClient();
+    const cid = await client.put(fileInput.files);
+
+    const imageUri = `https://${cid}.ipfs.dweb.link/${fileInput.files[0].name}`;
+
+    return imageUri;
+  }
+
+  async function generateMetadata() {
+    const imageUri = await getImageLink();
+
+    const metadata = {
+      name: userRegistration.name,
+      description: userRegistration.description,
+      image: imageUri,
+      attributes: [{ country: userRegistration.countryName }],
+    };
+
+    console.log(JSON.parse(JSON.stringify(metadata)));
+  }
+
   const submitForm = async (e) => {
     e.preventDefault();
 
@@ -100,20 +125,22 @@ function Proposal() {
       return;
     }
     //Here you write your upload logic or whatever you want
-    const cid = await storeFiles(getFiles());
-    const json = JSON.parse(
-      JSON.stringify({ cid, walletAddress: currentAccount })
-    );
-    axios
-      .post("http://localhost:3001/api/data/updateCid", json, {
-        headers: accessToken,
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((res) => {
-        console.log(res);
-      });
+    // const cid = await storeFiles(getFiles());
+    // const json = JSON.parse(
+    //   JSON.stringify({ cid, walletAddress: currentAccount })
+    // );
+    // axios
+    //   .post("http://localhost:3001/api/data/updateCid", json, {
+    //     headers: accessToken,
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((res) => {
+    //     console.log(res);
+    //   });
+
+    console.log(await generateMetadata());
   };
   return (
     <>
