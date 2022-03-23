@@ -3,9 +3,8 @@ import { Web3Storage, getFilesFromPath } from 'web3.storage';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
-import { CidDto } from './dto/cid.dto';
 import { writeFileSync, readdir, readFileSync } from 'fs';
-import { uCidDto } from './dto/uCid.dto';
+import { projectIdDto, uCidDto, CidDto } from './dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
@@ -176,6 +175,18 @@ export class DataService {
     });
 
     return 'done';
+  }
+
+  // update projectId
+  async updateProjectId(dto: projectIdDto) {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        projectId: dto.projectId,
+      },
+    });
   }
 
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/
