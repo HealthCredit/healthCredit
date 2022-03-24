@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsEthereumAddress } from 'class-validator';
 
-export class uCidDto {
+export class updateCidDto {
   @IsString()
   @IsNotEmpty()
   cid: string;

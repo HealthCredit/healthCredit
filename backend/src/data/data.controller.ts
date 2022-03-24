@@ -2,7 +2,8 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthDto } from '../authentication/dto';
 import { AtGuard } from '../common/guards';
 import { DataService } from './data.service';
-import { projectIdDto, uCidDto, CidDto } from './dto';
+import { projectIdDto, updateCidDto, CidDto } from './dto';
+import { approveProjectDto } from './dto/approveProject.dto';
 
 @Controller('api/data')
 export class DataController {
@@ -33,7 +34,7 @@ export class DataController {
 
   @UseGuards(AtGuard)
   @Post('updateCid')
-  async updateCid(@Body() dto: uCidDto): Promise<string> {
+  async updateCid(@Body() dto: updateCidDto): Promise<string> {
     return this.dataService.updateCid(dto);
   }
 
@@ -41,5 +42,11 @@ export class DataController {
   @Post('saveProjectId')
   async saveProjectId(@Body() dto: projectIdDto) {
     return this.dataService.updateProjectId(dto);
+  }
+
+  @UseGuards(AtGuard)
+  @Post('approveProject')
+  async approveProject(@Body() dto: approveProjectDto) {
+    return this.dataService.approveProject(dto);
   }
 }

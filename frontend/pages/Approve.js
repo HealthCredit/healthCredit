@@ -17,8 +17,9 @@ function Approve() {
     for (const i in project) {
       ay.push({
         id: i,
-        link: project[i].slice(0, -1),
-        status: project[i].slice(-1)[0],
+        link: project[i].slice(0, -2),
+        status: project[i].slice(-2)[0],
+        projectId: project[i].slice(-1)[0],
       });
     }
   });
@@ -61,21 +62,6 @@ function Approve() {
       console.log("User not have impacts");
     }
   };
-
-  // const fetchProjects = async () => {
-  //   const projectData = await axios
-  //     .get("http://localhost:3001/api/data/fetchProjects", {
-  //       headers: accessToken,
-  //     })
-  //     .then((response) => {
-  //       value.setProjects(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-
-  //   console.log(projects[0]);
-  // };
 
   useEffect(() => {
     async function fetchApi() {

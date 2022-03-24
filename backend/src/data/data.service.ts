@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
 import { writeFileSync, readdir, readFileSync } from 'fs';
-import { projectIdDto, uCidDto, CidDto } from './dto';
+import { projectIdDto, approveProjectDto, updateCidDto, CidDto } from './dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
@@ -137,7 +137,12 @@ export class DataService {
     }
     for (const i in d) {
       data.push(
-        await this.retrieveFiles(d[i].cid, d[i].walletAddress, d[i].status),
+        await this.retrieveFiles(
+          d[i].cid,
+          d[i].walletAddress,
+          d[i].status,
+          d[i].projectId,
+        ),
       );
     }
 
@@ -164,7 +169,7 @@ export class DataService {
   }
 
   // update cid and set status to false
-  async updateCid(dto: uCidDto): Promise<string> {
+  async updateCid(dto: updateCidDto): Promise<string> {
     await this.prisma.user.update({
       where: {
         walletAddress: dto.walletAddress,
@@ -185,6 +190,17 @@ export class DataService {
       },
       data: {
         projectId: dto.projectId,
+      },
+    });
+  }
+
+  async approveProject(dto: approveProjectDto) {
+    await this.prisma.user.update({
+      where: {
+        projectId: dto.projectId,
+      },
+      data: {
+        status: true,
       },
     });
   }
@@ -264,6 +280,7 @@ export class DataService {
         walletAddress: users[user].walletAddress,
         cid: users[user].cid,
         status: users[user].status,
+        projectId: users[user].projectId,
       };
       console.log(data);
       data[key].push(input);
@@ -272,7 +289,12 @@ export class DataService {
     return JSON.parse(JSON.stringify(data));
   }
 
-  async retrieveFiles(cid: string, walletAddress: string, status: boolean) {
+  async retrieveFiles(
+    cid: string,
+    walletAddress: string,
+    status: boolean,
+    projectId: number,
+  ) {
     const client = await this.makeStorageClient();
     const res = await client.get(cid);
     console.log(`Got a response! [${res.status}] ${res.statusText}`);
@@ -296,6 +318,7 @@ export class DataService {
       );
     }
     data[key].push(status);
+    data[key].push(projectId);
 
     console.log(data);
     // return res.files();

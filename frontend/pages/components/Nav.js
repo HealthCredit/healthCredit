@@ -136,16 +136,16 @@ const Nav = () => {
           {isConnected && (
             <>
               <li className={styles.navBtn}>
-                <Link href="/Impact">Buy Impact</Link>
-              </li>
-              <li className={styles.navBtn}>
-                <Link href="/LYS">Buy LYS</Link>
-              </li>
-              <li className={styles.navBtn}>
-                <Link href="/Proposal">Issue project</Link>
+                <Link href="/Proposal">Propose project</Link>
               </li>
               <li className={styles.navBtn}>
                 <Link href="/Approve">Approve project</Link>
+              </li>
+              <li className={styles.navBtn}>
+                <Link href="/Impact">Get Impact</Link>
+              </li>
+              <li className={styles.navBtn}>
+                <Link href="/BuyLYS">Buy LYS</Link>
               </li>
             </>
           )}

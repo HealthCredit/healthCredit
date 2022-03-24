@@ -49,7 +49,7 @@ function Proposal() {
     let currentUserAddress = accounts[0];
     console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
-    const contractAddress = "0xFcD3C90F4B8F4E07454f4E67579809b718EbeDF7";
+    const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
     const contractAbi = LYS.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
@@ -152,7 +152,7 @@ function Proposal() {
     });
 
     // make smart contract calls
-    console.log(await saveProposalId(await getProposalId(cidLink)));
+    await saveProposalId(await getProposalId(cidLink));
     // console.log(await getProposalId(cidLink));
   };
 
