@@ -8,4 +8,7 @@ export class projectIdDto {
   @IsNotEmpty()
   @IsEthereumAddress()
   walletAddress: string;
+
+  @IsNotEmpty()
+  LYSamount: number;
 }

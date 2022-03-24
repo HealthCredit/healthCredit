@@ -105,18 +105,23 @@ export class DataService {
    *  @returns metadata uri from CID
    *
    * */
-  async retrieveMetadata(dto: AuthDto): Promise<any> {
+  async retrieveMetadataAndProjectId(dto: AuthDto): Promise<any> {
     const client = await this.makeStorageClient();
-    const [cid, walletAddress] = await this.fetchCidWallet(dto.walletAddress);
-    const res = await client.get(cid);
+    const [cid, projectId, lysamount] = await this.fetchCidandProjectId(
+      dto.walletAddress,
+    );
+
+    const res = await client.get(cid.toString());
     console.log(`Got a response! [${res.status}] ${res.statusText}`);
     if (!res.ok) {
       throw new Error(`failed to get ${cid}`);
     }
 
     // variables to hold metadat uri
-    const metadata_uri = `https://${cid}.ipfs.dweb.link/${walletAddress}/metadata.json`;
-    const uri = metadata_uri;
+    const metadata_uri = `https://${cid}.ipfs.dweb.link/metadata.json`;
+    const uri = JSON.parse(
+      JSON.stringify({ metadata_uri, projectId, lysamount }),
+    );
 
     return uri;
   }
@@ -190,6 +195,7 @@ export class DataService {
       },
       data: {
         projectId: dto.projectId,
+        lysamount: dto.LYSamount,
       },
     });
   }
@@ -227,14 +233,14 @@ export class DataService {
    *  @param walletAddress: user wallet address.
    *  @returns user CID and wallet address
    * */
-  async fetchCidWallet(walletAddress: string) {
+  async fetchCidandProjectId(walletAddress: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         walletAddress,
       },
     });
 
-    return [user.cid, user.walletAddress];
+    return [user.cid, user.projectId, user.lysamount];
   }
 
   /**
@@ -268,6 +274,7 @@ export class DataService {
         cid: {
           not: null,
         },
+        status: false,
       },
     });
 

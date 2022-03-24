@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import LYS from "../abi/LYS.json";
+import abi from "../abi/LYS.json";
 import Link from "next/link";
 import styles from "./Grid.module.css";
 import AppContext from "./../AppContext";
@@ -19,10 +19,9 @@ function Grid({ obj, hasImpact }) {
 
     const accounts = await provider.listAccounts();
     let currentUserAddress = accounts[0];
-    // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
-    const contractAbi = LYS.abi;
+    const contractAbi = abi.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
     let approveProposal = await contract.approoveProposal(projectId, true);
@@ -40,6 +39,8 @@ function Grid({ obj, hasImpact }) {
     // console.log(json);
   }
 
+  // ToDo: Make approve page refresh/refetch data after a project is approved.
+
   return (
     <div className={styles.container}>
       <div>
@@ -56,15 +57,13 @@ function Grid({ obj, hasImpact }) {
           })}
         </div>
       }
-      {hasImpact && (
+      {hasImpact ? (
         <div>
-          {obj.status ? (
-            <button disabled>Approve</button>
-          ) : (
-            <button onClick={() => approveProject(obj.projectId)}>
-              Approve
-            </button>
-          )}
+          <button onClick={() => approveProject(obj.projectId)}>Approve</button>
+        </div>
+      ) : (
+        <div>
+          <button disabled>Approve</button>
         </div>
       )}
     </div>

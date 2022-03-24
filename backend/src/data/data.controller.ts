@@ -21,9 +21,9 @@ export class DataController {
   }
 
   @UseGuards(AtGuard)
-  @Post('retrieveMetadata')
+  @Post('retrieveDetails')
   async retrieve(@Body() dto: AuthDto): Promise<any> {
-    return this.dataService.retrieveMetadata(dto);
+    return this.dataService.retrieveMetadataAndProjectId(dto);
   }
 
   @UseGuards(AtGuard)

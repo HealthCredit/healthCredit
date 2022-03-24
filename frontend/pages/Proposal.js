@@ -19,6 +19,7 @@ function Proposal() {
     description: "",
     LYSamount: 0,
   });
+  const [proposalId, setProposalId] = useState("");
   const [formIsSubmitted, setFormIsSubmitted] = useState(false); //if form is submitted we display "you proposal is submitted"
   const handleInput = (e) => {
     const name = e.target.name;
@@ -50,7 +51,7 @@ function Proposal() {
     console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
-    const contractAbi = LYS.abi;
+    const contractAbi = abi.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
@@ -58,7 +59,7 @@ function Proposal() {
     // console.log(contractAddress, contractAbi, signer);
   }
 
-  // <!----------------------------------------------------START FILE UPLOAD LOGIC-------------------------------------------------------->
+  // <!-----------------------------START FILE UPLOAD LOGIC--------------------------------->
   // get access token from env
   function getAccessToken() {
     return process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN;
@@ -154,6 +155,8 @@ function Proposal() {
     // make smart contract calls
     await saveProposalId(await getProposalId(cidLink));
     // console.log(await getProposalId(cidLink));
+
+    setFormIsSubmitted(true);
   };
 
   // make proposal and get proposalId
@@ -181,6 +184,7 @@ function Proposal() {
 
     let getProposalId = await contract.getProposalId();
     let projectId = Number(getProposalId._hex);
+    setProposalId(projectId);
 
     const result = { projectId, currentUserAddress };
     return result;
@@ -189,10 +193,12 @@ function Proposal() {
   // save proposal/projectId to database
   async function saveProposalId(result) {
     const { projectId, currentUserAddress } = result;
+    const LYSamount = userRegistration.LYSamount;
     const json = JSON.parse(
       JSON.stringify({
         walletAddress: currentUserAddress,
         projectId: projectId,
+        LYSamount,
       })
     );
 
@@ -274,7 +280,7 @@ function Proposal() {
                 </svg>
               </span>
             </h2>
-            <h3>Your proposal Id is :- </h3>
+            <h3>Your proposal Id is :- {proposalId}</h3>
           </div>
         )}
       </div>

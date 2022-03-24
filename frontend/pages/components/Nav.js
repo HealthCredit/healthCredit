@@ -142,6 +142,9 @@ const Nav = () => {
                 <Link href="/Approve">Approve project</Link>
               </li>
               <li className={styles.navBtn}>
+                <Link href="/MintLYS">Mint LYS</Link>
+              </li>
+              <li className={styles.navBtn}>
                 <Link href="/Impact">Get Impact</Link>
               </li>
               <li className={styles.navBtn}>

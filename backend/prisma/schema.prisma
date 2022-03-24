@@ -14,6 +14,7 @@ model User {
   walletAddress String   @unique
   cid           String?  @unique
   projectId     Int?     @unique
+  lysamount     Int?     @default(1)
   status        Boolean  @default(false) @db.Boolean
   hash          String
   hashedRt      String?
