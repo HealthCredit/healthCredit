@@ -31,7 +31,7 @@ interface Impact {
     );
 }
 
-contract LYS is ERC1155 {
+contract newLYS2 is ERC1155 {
     address owner;
     uint256 _tokenIds = 1;
     uint256 proposalId = 1;
@@ -76,7 +76,9 @@ contract LYS is ERC1155 {
         require(msg.sender == owner, "You are not the owner");
         _;
     }
-
+    function isProposalApproved(uint id) view external returns(bool){
+        return approove[id];
+    }
     function getPropsalLink(uint256 _id) external view returns (string memory) {
         return proposalIdtoUri[_id];
     }
@@ -88,14 +90,17 @@ contract LYS is ERC1155 {
     function getAllProposal() external view returns (ProposalStruct[] memory) {
         return proposalArray;
     }
-
+    function changeImpactAddress(address newImpact) external onlyOwner{
+        impact = Impact(newImpact);
+    }
     function propose(string memory detailUri, uint256 amount) external {
+        require(proposalMapId[msg.sender]==0,"Only one proposal can be issued by per address");
         uint256 currentId = proposalId;
         proposalIdtoUri[currentId] = detailUri;
         proposorAddress[currentId] = msg.sender;
         proposalArray.push(
             ProposalStruct({
-                id: proposalId,
+                id: currentId,
                 link: detailUri,
                 LYStokenAmount: amount,
                 status: Status.pending
@@ -106,8 +111,8 @@ contract LYS is ERC1155 {
         proposalMapId[msg.sender] = currentId;
     }
 
-    function getProposalId() public view returns (uint256) {
-        return proposalMapId[msg.sender];
+    function getProposalId(address addrr) public view returns (uint256) {
+        return proposalMapId[addrr];
     }
 
     function approoveProposal(uint256 _proposalId, bool success) external {
