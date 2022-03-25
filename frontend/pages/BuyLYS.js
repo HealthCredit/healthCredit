@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Nav from "./components/Nav";
 import styles from "../styles/BuyLYS.module.css";
 import { ethers } from "ethers";
-import abi from "./abi/LYSabi.json";
+import abi from "./abi/LYS.json";
 
 function BuyLYS() {
   const [id, setId] = useState(0);
@@ -15,7 +15,7 @@ function BuyLYS() {
     // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     // console.log(currentUserAddress);
-    const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
+    const contractAddress = "0x172ADbE5C4F0a2430A97D8C11a0AC1ee840B535b";
     const contractAbi = abi.abi;
 
     const signer = provider.getSigner();

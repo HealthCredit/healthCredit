@@ -44,7 +44,7 @@ function Approve() {
     console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     console.log(currentUserAddress);
-    const contractAddress = "0x028E2a8C28AC1f5C6af8A8c5B32B08760a806f12";
+    const contractAddress = "0x27717A752D65F1f05fcad8e64794b0bc5C8Bf96d";
     const contractAbi = abi.abi;
 
     const signer = provider.getSigner();

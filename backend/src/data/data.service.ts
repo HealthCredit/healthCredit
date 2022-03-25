@@ -175,14 +175,17 @@ export class DataService {
 
   // update cid and set status to false
   async updateCid(dto: updateCidDto): Promise<string> {
+    const cid = dto.cid;
+
     await this.prisma.user.update({
       where: {
         walletAddress: dto.walletAddress,
       },
       data: {
-        cid: dto.cid,
+        cid,
       },
     });
+    console.log('cid', dto.cid);
 
     return 'done';
   }

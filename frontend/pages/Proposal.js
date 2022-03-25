@@ -3,8 +3,6 @@ import Nav from "./components/Nav";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useState, useContext } from "react";
-// import abi from "../pages/abi/LYSabi.json";
-import { BigNumber } from "bignumber.js";
 import abi from "../pages/abi/LYS.json";
 import { Web3Storage } from "web3.storage";
 import AppContext from "./AppContext";
@@ -50,7 +48,7 @@ function Proposal() {
     let currentUserAddress = accounts[0];
     console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
-    const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
+    const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
     const contractAbi = abi.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
@@ -83,7 +81,7 @@ function Proposal() {
       files.push(tempFiles[i][0]);
     }
     files.push(await makeFileObjects());
-
+    console.log("files", files);
     return files;
   }
 
@@ -103,6 +101,7 @@ function Proposal() {
   async function storeFiles(files) {
     const client = makeStorageClient();
     const cid = await client.put(files);
+    console.log("cid", cid);
     return cid;
   }
 
@@ -148,19 +147,22 @@ function Proposal() {
       JSON.stringify({ cid, walletAddress: currentAccount })
     );
     const cidLink = `https://${cid}.ipfs.dweb.link`;
-    axios.post("http://localhost:3001/api/data/updateCid", json, {
+    await submitProposal(cidLink);
+
+    console.log("frontend", json);
+
+    await axios.post("http://localhost:3001/api/data/updateCid", json, {
       headers: accessToken,
     });
 
     // make smart contract calls
-    await saveProposalId(await getProposalId(cidLink));
-    // console.log(await getProposalId(cidLink));
+    await saveProposalId();
 
     setFormIsSubmitted(true);
   };
 
   // make proposal and get proposalId
-  async function getProposalId(detailUri) {
+  async function submitProposal(detailUri) {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
@@ -168,9 +170,7 @@ function Proposal() {
 
     const accounts = await provider.listAccounts();
     let currentUserAddress = accounts[0];
-    // console.log(currentUserAddress);
-    currentUserAddress = currentUserAddress.toLowerCase();
-    const contractAddress = "0xb35BaF35DfD02Ad4fac9430981cEE413698cC242";
+    const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
     const contractAbi = abi.abi;
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
@@ -181,26 +181,52 @@ function Proposal() {
     );
 
     proposalId.wait();
-
-    let getProposalId = await contract.getProposalId();
-    let projectId = Number(getProposalId._hex);
-    setProposalId(projectId);
-
-    const result = { projectId, currentUserAddress };
-    return result;
   }
 
+  // async function getId() {
+  //   const web3Modal = new Web3Modal();
+  //   const connection = await web3Modal.connect();
+  //   const provider = new ethers.providers.Web3Provider(connection);
+  //   const signer = provider.getSigner();
+
+  //   const accounts = await provider.listAccounts();
+  //   const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
+  //   const contractAbi = abi.abi;
+
+  //   const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+
+  //   let getProposal = await contract.getProposalId(currentAccount);
+  //   let getProposalId = Number(getProposal._hex);
+
+  //   return getProposalId;
+  // }
+
   // save proposal/projectId to database
-  async function saveProposalId(result) {
-    const { projectId, currentUserAddress } = result;
+  async function saveProposalId() {
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+
+    const accounts = await provider.listAccounts();
+    const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
+    const contractAbi = abi.abi;
+
+    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+
+    let getProposal = await contract.getProposalId(currentAccount);
+    let getProposalId = Number(getProposal._hex);
+
     const LYSamount = userRegistration.LYSamount;
     const json = JSON.parse(
       JSON.stringify({
-        walletAddress: currentUserAddress,
-        projectId: projectId,
+        walletAddress: currentAccount,
+        projectId: getProposalId,
         LYSamount,
       })
     );
+
+    console.log(json);
 
     await axios.post("http://localhost:3001/api/data/saveProjectId", json, {
       headers: accessToken,

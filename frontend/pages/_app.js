@@ -9,7 +9,6 @@ function MyApp({ Component, pageProps }) {
   const [accessToken, setAccessToken] = useState("");
   const [userHasImpact, setUerHasImpact] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [proposalId, setProposalId] = useState("");
 
   return (
     <AppContext.Provider
