@@ -1,11 +1,11 @@
 import { IsString, IsNotEmpty, IsEthereumAddress } from 'class-validator';
 
-export class projectIdDto {
+export class projectDto {
   @IsString()
   @IsNotEmpty()
   @IsEthereumAddress()
   walletAddress: string;
 
   @IsNotEmpty()
-  projectId: number;
+  lysamount: number;
 }

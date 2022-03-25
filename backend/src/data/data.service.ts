@@ -4,7 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
 import { writeFileSync, readdir, readFileSync } from 'fs';
-import { projectIdDto, approveProjectDto, updateCidDto, CidDto } from './dto';
+import {
+  projectIdDto,
+  projectDto,
+  approveProjectDto,
+  updateCidDto,
+  CidDto,
+} from './dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
@@ -191,6 +197,19 @@ export class DataService {
   }
 
   // update projectId
+  async updateProject(dto: projectDto) {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        lysamount: dto.lysamount,
+      },
+    });
+
+    return `updated lys amonut with: ${dto.lysamount}`;
+  }
+
   async updateProjectId(dto: projectIdDto) {
     await this.prisma.user.update({
       where: {
@@ -198,9 +217,10 @@ export class DataService {
       },
       data: {
         projectId: dto.projectId,
-        lysamount: dto.LYSamount,
       },
     });
+
+    return `updated projectId with: ${dto.projectId}`;
   }
 
   async approveProject(dto: approveProjectDto) {
@@ -212,6 +232,18 @@ export class DataService {
         status: true,
       },
     });
+  }
+
+  async getMetadata(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+    });
+
+    const metadataUri = `https://${user.cid}.ipfs.dweb.link/metadata.json`;
+
+    return metadataUri;
   }
 
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/

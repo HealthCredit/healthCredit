@@ -3,6 +3,8 @@ import Nav from "./components/Nav";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useState, useContext } from "react";
+// import abi from "../pages/abi/LYSabi.json";
+import { BigNumber } from "bignumber.js";
 import abi from "../pages/abi/LYS.json";
 import { Web3Storage } from "web3.storage";
 import AppContext from "./AppContext";
@@ -17,8 +19,8 @@ function Proposal() {
     description: "",
     LYSamount: 0,
   });
-  const [proposalId, setProposalId] = useState("");
-  const [formIsSubmitted, setFormIsSubmitted] = useState(false); //if form is submitted we display "you proposal is submitted"
+  const [formIsSubmitted, setFormIsSubmitted] = useState(false);
+  const [projectId, setProjectId] = useState(); //if form is submitted we display "you proposal is submitted"
   const handleInput = (e) => {
     const name = e.target.name;
     const value = name === "LYSamount" ? +e.target.value : e.target.value;
@@ -37,7 +39,6 @@ function Proposal() {
     }
   };
 
-  // connect to contract
   async function getContract() {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
@@ -46,18 +47,16 @@ function Proposal() {
 
     const accounts = await provider.listAccounts();
     let currentUserAddress = accounts[0];
-    console.log(currentUserAddress);
+    // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
     const contractAbi = abi.abi;
-
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
     return contract;
-    // console.log(contractAddress, contractAbi, signer);
   }
 
-  // <!-----------------------------START FILE UPLOAD LOGIC--------------------------------->
+  // <!----------------------------------------------------START FILE UPLOAD LOGIC-------------------------------------------------------->
   // get access token from env
   function getAccessToken() {
     return process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN;
@@ -81,7 +80,7 @@ function Proposal() {
       files.push(tempFiles[i][0]);
     }
     files.push(await makeFileObjects());
-    console.log("files", files);
+
     return files;
   }
 
@@ -101,7 +100,6 @@ function Proposal() {
   async function storeFiles(files) {
     const client = makeStorageClient();
     const cid = await client.put(files);
-    console.log("cid", cid);
     return cid;
   }
 
@@ -147,33 +145,26 @@ function Proposal() {
       JSON.stringify({ cid, walletAddress: currentAccount })
     );
     const cidLink = `https://${cid}.ipfs.dweb.link`;
-    await submitProposal(cidLink);
-
-    console.log("frontend", json);
-
-    await axios.post("http://localhost:3001/api/data/updateCid", json, {
+    axios.post("http://localhost:3001/api/data/updateCid", json, {
       headers: accessToken,
     });
 
-    // make smart contract calls
-    await saveProposalId();
+    // // make smart contract calls
+    await createProposal(cidLink);
+    // // console.log(await getProposalId(cidLink));
 
     setFormIsSubmitted(true);
   };
 
+  const submittedForm = async (e) => {
+    e.preventDefault();
+
+    await getId();
+  };
+
   // make proposal and get proposalId
-  async function submitProposal(detailUri) {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
-
-    const accounts = await provider.listAccounts();
-    let currentUserAddress = accounts[0];
-    const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
-    const contractAbi = abi.abi;
-
-    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+  async function createProposal(detailUri) {
+    const contract = await getContract();
 
     let proposalId = await contract.propose(
       detailUri,
@@ -181,56 +172,44 @@ function Proposal() {
     );
 
     proposalId.wait();
+
+    saveProposal();
   }
 
-  // async function getId() {
-  //   const web3Modal = new Web3Modal();
-  //   const connection = await web3Modal.connect();
-  //   const provider = new ethers.providers.Web3Provider(connection);
-  //   const signer = provider.getSigner();
-
-  //   const accounts = await provider.listAccounts();
-  //   const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
-  //   const contractAbi = abi.abi;
-
-  //   const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-
-  //   let getProposal = await contract.getProposalId(currentAccount);
-  //   let getProposalId = Number(getProposal._hex);
-
-  //   return getProposalId;
-  // }
-
-  // save proposal/projectId to database
-  async function saveProposalId() {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
-
-    const accounts = await provider.listAccounts();
-    const contractAddress = "0x8c8d06991646A9701266794a385Db4b576E2678D";
-    const contractAbi = abi.abi;
-
-    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-
-    let getProposal = await contract.getProposalId(currentAccount);
-    let getProposalId = Number(getProposal._hex);
-
-    const LYSamount = userRegistration.LYSamount;
+  // save proposal to database
+  async function saveProposal() {
     const json = JSON.parse(
       JSON.stringify({
         walletAddress: currentAccount,
-        projectId: getProposalId,
-        LYSamount,
+        lysamount: userRegistration.LYSamount,
       })
     );
 
+    await axios.post("http://localhost:3001/api/data/saveProject", json, {
+      headers: accessToken,
+    });
+
     console.log(json);
+  }
+
+  // get proposal id
+  async function getId() {
+    const contract = await getContract();
+
+    const getId = await contract.getProposalId(currentAccount);
+    const convertedId = Number(getId._hex);
+
+    const json = JSON.parse(
+      JSON.stringify({ walletAddress: currentAccount, projectId: convertedId })
+    );
+
+    setProjectId(convertedId);
 
     await axios.post("http://localhost:3001/api/data/saveProjectId", json, {
       headers: accessToken,
     });
+
+    console.log(json);
   }
   return (
     <>
@@ -239,7 +218,7 @@ function Proposal() {
         <div>
           <h1>Submit proposal for approval</h1>
         </div>
-        {!formIsSubmitted && (
+        {!formIsSubmitted ? (
           <form action="" className={styles.form} onSubmit={submitForm}>
             <div className={styles.formBox}>
               <div className={styles.box}>
@@ -295,18 +274,14 @@ function Proposal() {
               </div>
             </div>
           </form>
-        )}
-        {formIsSubmitted && (
-          <div className={styles.afterProposal}>
-            <h2>
-              Your proposal is submitted{" "}
-              <span className={styles.check}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                  <path d="M0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256zM371.8 211.8C382.7 200.9 382.7 183.1 371.8 172.2C360.9 161.3 343.1 161.3 332.2 172.2L224 280.4L179.8 236.2C168.9 225.3 151.1 225.3 140.2 236.2C129.3 247.1 129.3 264.9 140.2 275.8L204.2 339.8C215.1 350.7 232.9 350.7 243.8 339.8L371.8 211.8z" />
-                </svg>
-              </span>
-            </h2>
-            <h3>Your proposal Id is :- {proposalId}</h3>
+        ) : (
+          <div>
+            <form action="" className={styles.form} onSubmit={submittedForm}>
+              <h3>Your proposal Id is :- {projectId}</h3>
+              <div className={styles.submitBtn}>
+                <button type="submit">Get ProjectId</button>
+              </div>
+            </form>
           </div>
         )}
       </div>
