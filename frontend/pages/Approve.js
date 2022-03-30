@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import Grid from "./components/Grid";
 import styles from "../styles/Approove.module.css";
 import Nav from "./components/Nav";
-import abi from "./abi/IMPACTabi.json";
+import abi from "./abi/IMPACT.json";
 import { ethers } from "ethers";
 import AppContext from "./AppContext";
 import axios from "axios";
@@ -44,7 +44,7 @@ function Approve() {
     // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
     // console.log(currentUserAddress);
-    const contractAddress = "0x27717A752D65F1f05fcad8e64794b0bc5C8Bf96d";
+    const contractAddress = "0xb33570e451B6073bB7C1DdfA5dE9BCeF2f4A2269";
     const contractAbi = abi.abi;
 
     const signer = provider.getSigner();
