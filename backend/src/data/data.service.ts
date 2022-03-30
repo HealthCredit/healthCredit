@@ -1,93 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Web3Storage, getFilesFromPath } from 'web3.storage';
+import { Web3Storage } from 'web3.storage';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from '../authentication/dto';
-import { writeFileSync, readdir, readFileSync } from 'fs';
-import { projectIdDto, approveProjectDto, updateCidDto, CidDto } from './dto';
+import {
+  projectIdDto,
+  projectDto,
+  approveProjectDto,
+  updateCidDto,
+  CidDto,
+} from './dto';
 @Injectable()
 export class DataService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
-
-  /**
-   * @param walletAddress: wallet address of the user.
-   * @returns image_uri for to be stored in the metadata
-   *
-   * */
-  async modifyMetadata(walletAddress: string) {
-    // check that user exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: {
-        walletAddress,
-      },
-    });
-
-    // fetch files uploaded to a folder
-    const files: any = await getFilesFromPath(
-      `folder/${walletAddress}/LYS.png`,
-    );
-    const cid = await this.uploadToFilecoin(files, existingUser);
-
-    const image = `https://${cid}.ipfs.dweb.link/LYS.png`;
-
-    readdir(`folder/${walletAddress}`, (err, files) => {
-      if (err) console.log(err);
-      else {
-        files.forEach((file) => {
-          if (file === 'metadata.json') {
-            const content = readFileSync(`folder/${walletAddress}/${file}`, {
-              encoding: 'utf8',
-              flag: 'r',
-            });
-
-            const dataL = JSON.parse(content);
-            const data = { image };
-
-            const contentNew = Object.assign(dataL, data);
-            // console.log(contentNew);
-
-            writeFileSync(
-              `folder/${walletAddress}/${file}`,
-              JSON.parse(JSON.stringify(contentNew)),
-              'utf-8',
-            );
-          }
-        });
-      }
-    });
-
-    return image;
-  }
-
-  /**
-   *  @param dto: user wallet address
-   *  @returns projectUri for project files uploaded to filecoin
-   * */
-  async storeFiles(dto: AuthDto): Promise<any> {
-    // check that user exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: {
-        walletAddress: dto.walletAddress,
-      },
-    });
-
-    // if user cid does not exist...
-    if (!existingUser.cid) {
-      // create imageUri for metadata and add it to metadata.json
-      await this.modifyMetadata(dto.walletAddress);
-
-      // fetch files uploaded to a folder
-      const files: any = await getFilesFromPath(`folder/${dto.walletAddress}`);
-      const cid = await this.uploadToFilecoin(files, existingUser);
-
-      // variable for upload link
-      const projectUri = `https://${cid}.ipfs.dweb.link/${dto.walletAddress}`;
-
-      return { projectUri };
-    } else {
-      throw new Error('Files already uploaded!');
-    }
-  }
 
   /**
    *  @param CID
@@ -112,7 +37,7 @@ export class DataService {
     );
 
     const res = await client.get(cid.toString());
-    console.log(`Got a response! [${res.status}] ${res.statusText}`);
+    // console.log(`Got a response! [${res.status}] ${res.statusText}`);
     if (!res.ok) {
       throw new Error(`failed to get ${cid}`);
     }
@@ -173,7 +98,10 @@ export class DataService {
     });
   }
 
-  // update cid and set status to false
+  /**
+   * @param updateCidDto: wallet address and project cid
+   * @yields: save cid and set status to false on database
+   * */
   async updateCid(dto: updateCidDto): Promise<string> {
     const cid = dto.cid;
 
@@ -185,12 +113,33 @@ export class DataService {
         cid,
       },
     });
-    console.log('cid', dto.cid);
+    // console.log('cid', dto.cid);
 
     return 'done';
   }
 
-  // update projectId
+  // <!---------------------------------- START Project LYS amount and ID --------------------------------------->
+  /**
+   * @param projectDto: wallet address and lys amount from frontend
+   * @yields: save lysamount to database
+   * */
+  async updateProject(dto: projectDto) {
+    await this.prisma.user.update({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+      data: {
+        lysamount: dto.lysamount,
+      },
+    });
+
+    return `updated lys amonut with: ${dto.lysamount}`;
+  }
+
+  /**
+   * @param projectIdDto: wallet address and projectId from frontend
+   * @yields: save projectId to database
+   * */
   async updateProjectId(dto: projectIdDto) {
     await this.prisma.user.update({
       where: {
@@ -198,21 +147,12 @@ export class DataService {
       },
       data: {
         projectId: dto.projectId,
-        lysamount: dto.LYSamount,
       },
     });
-  }
 
-  async approveProject(dto: approveProjectDto) {
-    await this.prisma.user.update({
-      where: {
-        projectId: dto.projectId,
-      },
-      data: {
-        status: true,
-      },
-    });
+    return `updated projectId with: ${dto.projectId}`;
   }
+  // <------------------------------------ END OF Project LYS Amount and ID ---------------------------------------------->
 
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/
 
@@ -252,17 +192,16 @@ export class DataService {
    * */
   async uploadToFilecoin(files: any, existingUser: any) {
     const web3Storage = await this.makeStorageClient();
-    console.log(`🤖 Storing simple CBOR object...`);
+    // console.log(`🤖 Storing simple CBOR object...`);
 
     // save files to filecoin via web3.storage with
-    // same structure -> cid/walletAddress/file/[...project files...]
     const cid = await web3Storage.put(files);
 
     // store the cid to the repective address on postgres database
     await this.saveCid(existingUser.id, cid);
-    console.log(`🎉 Done storing simple CBOR object. CID: ${cid}`);
-    console.log(`💡 If you have ipfs installed, try: ipfs dag get ${cid}\n`);
-    console.log(`stored ${files.length} files. cid: ${cid}`);
+    // console.log(`🎉 Done storing simple CBOR object. CID: ${cid}`);
+    // console.log(`💡 If you have ipfs installed, try: ipfs dag get ${cid}\n`);
+    // console.log(`stored ${files.length} files. cid: ${cid}`);
 
     return cid;
   }
@@ -292,7 +231,7 @@ export class DataService {
         status: users[user].status,
         projectId: users[user].projectId,
       };
-      console.log(data);
+      // console.log(data);
       data[key].push(input);
     }
 
@@ -307,12 +246,12 @@ export class DataService {
   ) {
     const client = await this.makeStorageClient();
     const res = await client.get(cid);
-    console.log(`Got a response! [${res.status}] ${res.statusText}`);
-    if (!res.ok) {
-      throw new Error(
-        `failed to get ${cid} - [${res.status}] ${res.statusText}`,
-      );
-    }
+    // console.log(`Got a response! [${res.status}] ${res.statusText}`);
+    // if (!res.ok) {
+    //   throw new Error(
+    //     `failed to get ${cid} - [${res.status}] ${res.statusText}`,
+    //   );
+    // }
 
     const data = new Object();
     const key = walletAddress;
@@ -330,8 +269,39 @@ export class DataService {
     data[key].push(status);
     data[key].push(projectId);
 
-    console.log(data);
-    // return res.files();
     return data;
   }
+
+  /**
+   * @param AuthDto: wallet address
+   * @returns: metadataUri for the project.
+   * */
+  async getMetadata(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+    });
+
+    const metadataUri = `https://${user.cid}.ipfs.dweb.link/metadata.json`;
+
+    return metadataUri;
+  }
+
+  /**
+   * @param approveProjectDto: projectId
+   * @yields: set project status to true on database. NB: false = not approved, true = approved
+   * */
+  async approveProject(dto: approveProjectDto) {
+    await this.prisma.user.update({
+      where: {
+        projectId: dto.projectId,
+      },
+      data: {
+        status: true,
+      },
+    });
+  }
+
+  /*------------------------------------------------------END OF PURE FUNCTIONS------------------------------------------------*/
 }

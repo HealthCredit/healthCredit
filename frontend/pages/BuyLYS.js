@@ -29,13 +29,13 @@ function BuyLYS() {
   };
   const checkLYSexist = async () => {
     const contract = await getContract();
-    console.log(contract);
+    // console.log(contract);
     const uri = await contract.uri(id);
     if (uri.length === 0) {
-      console.log("LYS of this token id does not exist");
+      // console.log("LYS of this token id does not exist");
       setLYSexist(1);
     } else {
-      console.log("LYS of this token id exist");
+      // console.log("LYS of this token id exist");
       setLYSexist(2);
     }
   };
@@ -58,7 +58,7 @@ function BuyLYS() {
           <>
             <button>
               <a
-                href={`https://testnets.opensea.io/assets/0xb35BaF35DfD02Ad4fac9430981cEE413698cC242/${id}`}
+                href={`https://testnets.opensea.io/assets/0x8c8d06991646A9701266794a385Db4b576E2678D/${id}`}
               >
                 Buy
               </a>

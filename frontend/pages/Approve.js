@@ -25,7 +25,7 @@ function Approve() {
   });
 
   // value.setProjectList(ay);
-  console.log(ay);
+  // console.log(ay);
   const renderProposalForImpactHolder = () => {
     return ay.map((element, index) => {
       return <Grid key={index} obj={element} hasImpact={true} />;
@@ -41,9 +41,9 @@ function Approve() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const accounts = await provider.listAccounts();
     let currentUserAddress = accounts[0];
-    console.log(currentUserAddress);
+    // console.log(currentUserAddress);
     currentUserAddress = currentUserAddress.toLowerCase();
-    console.log(currentUserAddress);
+    // console.log(currentUserAddress);
     const contractAddress = "0x27717A752D65F1f05fcad8e64794b0bc5C8Bf96d";
     const contractAbi = abi.abi;
 
@@ -56,10 +56,10 @@ function Approve() {
     let tx = await contract.balanceOf(currentUserAddress);
     if (tx > 0) {
       value.setUerHasImpact(true);
-      console.log("User has impact");
+      // console.log("User has impact");
     } else {
       value.setUerHasImpact(false);
-      console.log("User not have impacts");
+      // console.log("User not have impacts");
     }
   };
 

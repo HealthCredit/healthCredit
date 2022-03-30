@@ -58,11 +58,7 @@ export class AuthenticationService {
       const tokens = await this.getTokens(user.id, user.walletAddress);
       await this.updateRtHash(user.id, tokens.refresh_token);
 
-      return {
-        byte32Hash,
-        hash,
-        tokens,
-      };
+      return tokens;
     }
   }
 

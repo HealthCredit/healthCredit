@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthDto } from '../authentication/dto';
 import { AtGuard } from '../common/guards';
 import { DataService } from './data.service';
-import { projectIdDto, updateCidDto, CidDto } from './dto';
+import { projectIdDto, projectDto, updateCidDto, CidDto } from './dto';
 import { approveProjectDto } from './dto/approveProject.dto';
 
 @Controller('api/data')
@@ -12,12 +12,6 @@ export class DataController {
   @Post('check')
   async checkStatus(@Body() dto: CidDto): Promise<any> {
     return this.dataService.checkStatus(dto);
-  }
-
-  @UseGuards(AtGuard)
-  @Post('upload')
-  storeFiles(@Body() dto: AuthDto): Promise<any> {
-    return this.dataService.storeFiles(dto);
   }
 
   @UseGuards(AtGuard)
@@ -33,9 +27,21 @@ export class DataController {
   }
 
   @UseGuards(AtGuard)
+  @Post('getMetadata')
+  async getMetadata(@Body() dto: AuthDto) {
+    return this.dataService.getMetadata(dto);
+  }
+
+  @UseGuards(AtGuard)
   @Post('updateCid')
   async updateCid(@Body() dto: updateCidDto): Promise<string> {
     return this.dataService.updateCid(dto);
+  }
+
+  @UseGuards(AtGuard)
+  @Post('saveProject')
+  async saveProject(@Body() dto: projectDto) {
+    return this.dataService.updateProject(dto);
   }
 
   @UseGuards(AtGuard)

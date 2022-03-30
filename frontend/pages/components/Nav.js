@@ -10,41 +10,6 @@ const Nav = () => {
   const value = useContext(AppContext);
   const { isConnected, currentAccount } = value.state;
 
-  // ! This function has no use, should be removed
-  // const isWalletConnect = async () => {
-  //   try {
-  //     const { ethereum } = window;
-  //     if (!ethereum) {
-  //       console.log("Make sure you have MetaMask!");
-  //       return;
-  //     } else {
-  //       console.log("We have the ethereum object", ethereum);
-  //     }
-  //     const accounts = await ethereum.request({ method: "eth_accounts" });
-  //     const provider = new ethers.providers.Web3Provider(ethereum);
-  //     const Id = await provider.getNetwork();
-  //     if (Id.chainId !== 80001) {
-  //       console.log("connect to mumbai testnet");
-  //       alert("Connect to mumbai network");
-  //       throw new error("Connect to mumbai network");
-  //     }
-
-  //     if (accounts.length !== 0) {
-  //       const account = accounts[0];
-  //       console.log(account);
-
-  //       if (Id.chainId === 80001) {
-  //         setCurrentAccount(account);
-  //         setIsConnected(true);
-  //       }
-  //     } else {
-  //       console.log("No account found");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const connectWallet = async () => {
     try {
       const { ethereum } = window;

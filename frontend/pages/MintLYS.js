@@ -14,7 +14,7 @@ function MintLYS() {
   const [uri, setUri] = useState("");
   const [amount, setAmount] = useState(0);
 
-  async function mint() {
+  async function getContract() {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
@@ -28,9 +28,29 @@ function MintLYS() {
 
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
-    let minting = await contract.mint(id, amount);
+    return contract;
+  }
 
-    await contract.setURI(id, uri);
+  async function mint() {
+    const contract = await getContract();
+
+    let minting = await contract.mint(id, amount);
+    minting.wait();
+  }
+
+  async function setUriAndRedirect() {
+    const contract = await getContract();
+
+    let lysId = await contract.getLYSTokenId(currentAccount);
+
+    // console.log(lysId);
+
+    let Uri = await contract.setURI(Number(lysId._hex), uri);
+    Uri.wait();
+
+    // console.log(JSON.parse(JSON.stringify({ uri, Uri })));
+
+    // console.log(Number(lysId._hex));
   }
 
   async function retrieveProjectDetails() {
@@ -42,6 +62,7 @@ function MintLYS() {
       })
       .then((response) => {
         setUri(response.data.metadata_uri);
+        // console.log(response.data.metadata_uri);
         setAmount(response.data.lysamount);
       })
       .catch((error) => {
@@ -69,6 +90,7 @@ function MintLYS() {
             }}
           />
           <button onClick={InitiateMint}>Mint</button>
+          <button onClick={setUriAndRedirect}>Set Metadata</button>
           <p>Make sure you are the owner of this proposal Id.</p>
         </div>
       </div>

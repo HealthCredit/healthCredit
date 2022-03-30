@@ -3,51 +3,38 @@
   "description": "This is the HealthCredit backend built with Nest.js",
   "website": "https://small-sharp-tool.com/",
   "repository": "https://github.com/HealthCredit/healthCredit/tree/main/backend",
-  "logo": "https://small-sharp-tool.com/logo.svg",
-  "success_url": "/welcome",
+  "success_url": "/",
   "scripts": {
-    "postdeploy": "bundle exec rake bootstrap"
+    "postdeploy": "npm install && npm run build"
   },
   "env": {
-    "SECRET_TOKEN": {
-      "description": "A secret key for verifying the integrity of signed cookies.",
-      "generator": "secret"
+    "NODE_ENV": {
+      "description": "Environment [production/development]",
+      "value": "production"
     },
-    "WEB_CONCURRENCY": {
-      "description": "The number of processes to run.",
-      "value": "5"
+    "AT_SECRET": {
+      "description": "Health credit backend access token",
+      "value": "healthCredit_at_secret"
+    },
+    "RT_SECRET": {
+      "description": "Health credit backend access token",
+      "value": "healthCredit_rt_secret"
+    },
+    "web3Storage": {
+      "description": "Web3.Storage access token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEM1MGE5QUQ1NzE1OTc2MzkxYzUzYzdGOUQ5QkRjNDYxNENkYmYxZWEiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NDc3MzM4Mjc2MjUsIm5hbWUiOiJoZWFsdGhDcmVkaXQifQ.6zfFK0YALJH20yJt5_vxbtdeNvubLl6vr7sZW5blQxk"
     }
   },
   "formation": {
     "web": {
-      "quantity": 1,
-      "size": "standard-1x"
+      "quantity": 1
     }
   },
-  "image": "heroku/ruby",
-  "addons": [
-    "openredis",
-    {
-      "plan": "mongolab:shared-single-small",
-      "as": "MONGO"
-    },
-    {
-      "plan": "heroku-postgresql",
-      "options": {
-        "version": "9.5"
-      }
-    }
-  ],
+  "image": "heroku/nodejs",
+  "addons": ["heroku-postgresql"],
   "buildpacks": [
     {
-      "url": "https://github.com/stomita/heroku-buildpack-phantomjs"
+      "url": "heroku/nodejs"
     }
-  ],
-  "environments": {
-    "test": {
-      "scripts": {
-        "test": "bundle exec rake test"
-      }
-    }
-  }
+  ]
 }
