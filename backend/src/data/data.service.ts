@@ -136,6 +136,7 @@ export class DataService {
     return `updated lys amonut with: ${dto.lysamount}`;
   }
 
+
   /**
    * @param projectIdDto: wallet address and projectId from frontend
    * @yields: save projectId to database
@@ -153,6 +154,18 @@ export class DataService {
     return `updated projectId with: ${dto.projectId}`;
   }
   // <------------------------------------ END OF Project LYS Amount and ID ---------------------------------------------->
+
+  async getMetadata(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        walletAddress: dto.walletAddress,
+      },
+    });
+
+    const metadataUri = `https://${user.cid}.ipfs.dweb.link/metadata.json`;
+
+    return metadataUri;
+  }
 
   /*------------------------------------------------------PURE FUNCTIONS------------------------------------------------*/
 

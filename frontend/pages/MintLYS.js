@@ -43,14 +43,9 @@ function MintLYS() {
 
     let lysId = await contract.getLYSTokenId(currentAccount);
 
-    // console.log(lysId);
-
     let Uri = await contract.setURI(Number(lysId._hex), uri);
     Uri.wait();
 
-    // console.log(JSON.parse(JSON.stringify({ uri, Uri })));
-
-    // console.log(Number(lysId._hex));
   }
 
   async function retrieveProjectDetails() {
@@ -62,7 +57,6 @@ function MintLYS() {
       })
       .then((response) => {
         setUri(response.data.metadata_uri);
-        // console.log(response.data.metadata_uri);
         setAmount(response.data.lysamount);
       })
       .catch((error) => {

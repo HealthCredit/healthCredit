@@ -150,7 +150,6 @@ function Proposal() {
 
     // // make smart contract calls
     await createProposal(cidLink);
-    // console.log(await getProposalId(cidLink));
 
     setFormIsSubmitted(true);
   };
