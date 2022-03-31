@@ -123,6 +123,7 @@ export class DataService {
    * @param projectDto: wallet address and lys amount from frontend
    * @yields: save lysamount to database
    * */
+  // update projectId
   async updateProject(dto: projectDto) {
     await this.prisma.user.update({
       where: {
